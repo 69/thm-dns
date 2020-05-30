@@ -9,7 +9,7 @@ const Client = require('./lib/client');
 const interval = 1000 * 30; // poll every 30s
 const cfgFile = 'config.json';
 const isDebug = process.argv.includes('-v');
-const exampleConfig = { username: '', password: '', server: '8.8.8.8', port: 53 }
+const exampleConfig = { username: '', password: '', port: 53 }
 
 let boxes = [], client;
 
@@ -22,7 +22,7 @@ const fetchBoxes = async () => {
 
 const setupDNS = (address, port) => {
   if(isDebug) logger.log(`[setupDNS] proxying from ${address}`);
-  const authority = { address, port: 53, type: 'udp' };
+  const authority = { address: address || require('dns').getServers()[0], port: 53, type: 'udp' };
   const server = dns.createServer();
   
   server.on('listening', () => {
