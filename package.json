@@ -1,0 +1,13 @@
+{
+  "name": "thm-dns",
+  "version": "1.0.0",
+  "bin": "app.js",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "cheerio": "^1.0.0-rc.3",
+    "got": "^11.1.4",
+    "native-dns": "^0.7.0",
+    "tough-cookie": "^4.0.0"
+  }
+}
