@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const dns = require('native-dns')
 const fs = require('fs')
 
