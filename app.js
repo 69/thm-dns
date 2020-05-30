@@ -8,7 +8,6 @@ const Client = require('./lib/client');
 const interval = 1000 * 30; // poll every 30s
 const cfgFile = 'config.json';
 const isDebug = process.argv.includes('-v');
-const isRoot = process.getuid && process.getuid() === 0;
 const exampleConfig = { username: '', password: '', server: '8.8.8.8', port: 53 }
 
 let boxes = [], client;
@@ -82,6 +81,8 @@ const setupDNS = (address, port) => {
   
   server.serve(port);
   server.on('request', handleRequest);
+  server.on('error', (err) => logger.error(err));
+  server.on('socketError', (err) => logger.error(err));
 }
 
 const init = async () => {
