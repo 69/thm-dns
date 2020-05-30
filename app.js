@@ -21,8 +21,9 @@ const fetchBoxes = async () => {
 }
 
 const setupDNS = (address, port) => {
-  if(isDebug) logger.log(`[setupDNS] proxying from ${address}`);
-  const authority = { address: address || require('dns').getServers()[0], port: 53, type: 'udp' };
+  const dnsServer = address || require('dns').getServers()[0];
+  if(isDebug) logger.log(`[setupDNS] proxying from ${dnsServer}`);
+  const authority = { address: dnsServer, port: 53, type: 'udp' };
   const server = dns.createServer();
   
   server.on('listening', () => {
