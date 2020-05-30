@@ -25,7 +25,7 @@ const setupDNS = (address, port) => {
   const server = dns.createServer();
   
   server.on('listening', () => {
-    logger.log(`Listening on port ${port}!`);
+    logger.success(`Listening on port ${port}!`);
   })
 
   server.on('error', (err) => {
@@ -94,9 +94,9 @@ const init = async () => {
     if(isDebug) logger.log('Signing into THM...');
     const cookie = await auth.signIn(username, password);
     client = new Client(cookie);
-    logger.log('Signed in!')
+    logger.success('Signed in!')
     await fetchBoxes()
-    if(isDebug) logger.log('Initial box fetch complete')
+    if(isDebug) logger.success('Initial box fetch complete')
     setInterval(fetchBoxes, interval)
     if(isDebug) logger.log('Setting up DNS')
     setupDNS(server, port);
