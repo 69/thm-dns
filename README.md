@@ -4,3 +4,5 @@ an experimental dns server that resolves [tryhackme](https://tryhackme.com) room
 note that you:
  - will need to run this as root if you want it to bind to port 53.
  - if using the dockerfile, you need to set up the config.json file beforehand as you can't do it once the docker container is built
+
+to deploy this using docker, you can run `yarn build` or `npm run build` and then `yarn deploy` or `npm run deploy` and hopefully it works

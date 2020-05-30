@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node app",
     "build": "docker build -t thm-dns .",
-    "get-ip": "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' thmdns",
-    "deploy": "docker run --rm -d -p 53:53/udp --name thmdns thm-dns && yarn get-ip"
+    "deploy": "docker run --rm -d -p 53:53/udp --name thmdns thm-dns"
   },
   "dependencies": {
     "chalk": "^4.0.0",
