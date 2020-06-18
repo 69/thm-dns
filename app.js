@@ -5,22 +5,15 @@ const fs = require('fs')
 const logger = require('./lib/logger');
 const auth = require('./lib/auth')
 const Client = require('./lib/client');
+const Cache = require('./lib/cache');
 
-const interval = 1000 * 30; // poll every 30s
 const cfgFile = 'config.json';
 const isDebug = process.argv.includes('-v');
-const exampleConfig = { username: '', password: '', port: 53 }
+const exampleConfig = { username: '', password: '', server: null, port: 53, ttl: 60, }
 
-let boxes = [], client;
+let cache;
 
-const fetchBoxes = async () => {
-  const request = await client('api/running-instances', { responseType: 'json' });
-  if(isDebug) logger.log(`[fetchBoxes] ${request.statusCode}`);
-  boxes = request.body;
-  return true;
-}
-
-const setupDNS = (address, port) => {
+const setupDNS = (address, port, ttl) => {
   const dnsServer = address || require('dns').getServers()[0];
   if(isDebug) logger.log(`[setupDNS] proxying from ${dnsServer}`);
   const authority = { address: dnsServer, port: 53, type: 'udp' };
@@ -56,16 +49,16 @@ const setupDNS = (address, port) => {
     logger.log(`Request for ${request.question[0].name}`);
     let queue = []
 
-    request.question.forEach(question => {
+    request.question.forEach(async (question) => {
       if(question.name.endsWith('.thm')) {
         const s = question.name.split('.')
         const name = s[s.length - 2]
-        const box = boxes.find(a => a.roomId.toLowerCase() === name);
+        const box = await cache.getBox(name);
         if(box) {
           response.answer.push(dns.A({
             name: question.name,
             address: box.internalIP,
-            ttl: 300,
+            ttl,
           }))
         } else {
           queue.push(proxy(question, response))
@@ -92,16 +85,17 @@ const init = async () => {
     fs.writeFileSync(cfgFile, JSON.stringify(exampleConfig, null, 2));
     logger.log('Created config.json. Please populate it with your THM username/password');
   } else {
-    const { username, password, server, port } = require('./config');
+    const { username, password, server, port, ttl } = require('./config');
     if(isDebug) logger.log('Signing into THM...');
     const cookie = await auth.signIn(username, password);
-    client = new Client(cookie);
+    const client = new Client(cookie);
     logger.success('Signed in!')
-    await fetchBoxes()
+    
+    cache = new Cache(client, ttl || 60);
+    await cache.fetchBoxes();
     if(isDebug) logger.success('Initial box fetch complete')
-    setInterval(fetchBoxes, interval)
     if(isDebug) logger.log('Setting up DNS')
-    setupDNS(server, port);
+    setupDNS(server, port, ttl || 60);
   
   }
 }
